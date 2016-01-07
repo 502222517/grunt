@@ -4,11 +4,13 @@
 // 缓存清理类
 var Cache={
 	regexs:{ // 
+		html:/\.(html)([\?]?)([#]?)/gim,
 		img:/\.(jpg|png|gif)([\?]?)([#]?)/gim, 
 		css:/\.(css)([\?]?)([#]?)/mgi,
 		js:/\.(js)([\?]?)([#]?)/mgi
 	},
 	tagRegexs:{ // 包含html标记
+		htmlTag:/<a [^>]*\.(html)[^>]*>/mgi,
 		imgTag:/<img[^>]*\.(jpg|png|gif)[^>]*>/mgi,
 		cssTag:/<link[^>]*rel="stylesheet"[^>]*\.css[^>]*>/mgi,
 		jsTag:/<script[^>]*src="[^>]*\.js[^>]*><\/script>/mgi
@@ -82,8 +84,17 @@ var Cache={
 	 */
 	htmls:function(content){  // 
 		var $this=this,temp;
-		var matches=content.match($this.tagRegexs.imgTag);
+		
+		var matches=content.match($this.tagRegexs.htmlTag);
+		// a 标签 .html 添加版本号
+		if(matches  && matches.length){
+			Array.prototype.forEach.call(matches,function(v,i){
+				temp=$this.setVersion(v,$this.regexs.html);
+				content=content.replace(v,temp);
+			});
+		}
 		// img 标签 添加版本号
+		matches=content.match($this.tagRegexs.imgTag);
 		if(matches  && matches.length){
 			Array.prototype.forEach.call(matches,function(v,i){
 				temp=$this.setVersion(v,$this.regexs.img);
